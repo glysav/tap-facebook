@@ -984,8 +984,8 @@ def initialize_stream(
     name = catalog_entry.stream
     stream_alias = catalog_entry.stream_alias
 
-    account_insights_breakdowns_options = {f"{key}__{CONFIG.get('account_id')}": value
-                                           for key, value in INSIGHTS_BREAKDOWNS_OPTIONS.values()}
+    account_insights_breakdowns_options = {f"{key}__{CONFIG.get('account_id')}": INSIGHTS_BREAKDOWNS_OPTIONS[key]
+                                           for key in INSIGHTS_BREAKDOWNS_OPTIONS}
     if name in account_insights_breakdowns_options:
         return AdsInsights(
             name,
@@ -1104,7 +1104,7 @@ def discover_schemas():
         LOGGER.info("Loading schema for %s", stream.name)
         schema = singer.resolve_schema_references(load_schema(stream), refs)
 
-        account_bookmark_keys = {f"{key}__{CONFIG.get('account_id')}": value for key, value in BOOKMARK_KEYS.values()}
+        account_bookmark_keys = {f"{key}__{CONFIG.get('account_id')}": BOOKMARK_KEYS[key] for key in BOOKMARK_KEYS}
         bookmark_key = account_bookmark_keys.get(stream.name)
 
         mdata = metadata.to_map(
