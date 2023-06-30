@@ -1042,7 +1042,7 @@ def do_sync(account, catalog, state):
         LOGGER.info("Syncing %s, fields %s", stream.name, stream.fields())
         schema = singer.resolve_schema_references(load_schema(stream), refs)
         metadata_map = metadata.to_map(stream.catalog_entry.metadata)
-        account_bookmark_keys = {f"{key}__{CONFIG.get('account_id')}": value for key, value in BOOKMARK_KEYS}
+        account_bookmark_keys = {f"{key}__{CONFIG.get('account_id')}": BOOKMARK_KEYS[key] for key in BOOKMARK_KEYS}
         bookmark_key = account_bookmark_keys.get(stream.name)
         singer.write_schema(
             stream.name,
