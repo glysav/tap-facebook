@@ -1036,13 +1036,12 @@ def do_sync(account, catalog, state):
     streams_to_sync = get_streams_to_sync(account, catalog, state)
     refs = load_shared_schema_refs()
     for stream in streams_to_sync:
-        stream.name = f'{CONFIG["table_prefix"]}_{stream.name}'
         LOGGER.info("Syncing %s, fields %s", stream.name, stream.fields())
         schema = singer.resolve_schema_references(load_schema(stream), refs)
         metadata_map = metadata.to_map(stream.catalog_entry.metadata)
         bookmark_key = BOOKMARK_KEYS.get(stream.name)
         singer.write_schema(
-            stream.name,
+            f'{CONFIG["table_prefix"]}_{stream.name}',
             schema,
             stream.key_properties,
             bookmark_key,
@@ -1064,7 +1063,7 @@ def do_sync(account, catalog, state):
                             message["record"], schema, metadata=metadata_map
                         )
                         singer.write_record(
-                            stream.name, record, stream.stream_alias, time_extracted
+                            f'{CONFIG["table_prefix"]}_{stream.name}', record, stream.stream_alias, time_extracted
                         )
                     elif "state" in message:
                         singer.write_state(message["state"])
