@@ -71,7 +71,7 @@ STREAMS = [
     #'leads',
 ]
 
-REQUIRED_CONFIG_KEYS = ["start_date", "account_id", "access_token", "table_prefix"]
+REQUIRED_CONFIG_KEYS = ["start_date", "account_id", "access_token"]
 UPDATED_TIME_KEY = "updated_time"
 CREATED_TIME_KEY = "created_time"
 START_DATE_KEY = "date_start"
@@ -1041,7 +1041,7 @@ def do_sync(account, catalog, state):
         metadata_map = metadata.to_map(stream.catalog_entry.metadata)
         bookmark_key = BOOKMARK_KEYS.get(stream.name)
         singer.write_schema(
-            f'{CONFIG["table_prefix"]}_{stream.name}',
+            f'{CONFIG.get("table_prefix", "unknown_prefix")}_{stream.name}',
             schema,
             stream.key_properties,
             bookmark_key,
@@ -1063,7 +1063,7 @@ def do_sync(account, catalog, state):
                             message["record"], schema, metadata=metadata_map
                         )
                         singer.write_record(
-                            f'{CONFIG["table_prefix"]}_{stream.name}', record, stream.stream_alias, time_extracted
+                            f'{CONFIG.get("table_prefix", "unknown_prefix")}_{stream.name}', record, stream.stream_alias, time_extracted
                         )
                     elif "state" in message:
                         singer.write_state(message["state"])
