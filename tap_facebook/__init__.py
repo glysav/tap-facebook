@@ -1004,7 +1004,7 @@ def initialize_stream(
     elif name == f"leads_{CONFIG.get('account_id')}":
         return Leads(name, account, stream_alias, catalog_entry, state=state)
     else:
-        raise TapFacebookException("Unknown stream {}".format(name))
+        raise TapFacebookException("Unknown asd stream {}".format(name))
 
 
 def get_streams_to_sync(account, catalog, state):
