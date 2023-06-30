@@ -1036,6 +1036,7 @@ def do_sync(account, catalog, state):
     streams_to_sync = get_streams_to_sync(account, catalog, state)
     refs = load_shared_schema_refs()
     for stream in streams_to_sync:
+        stream.name = f'prefix_{stream.name}'
         LOGGER.info("Syncing %s, fields %s", stream.name, stream.fields())
         schema = singer.resolve_schema_references(load_schema(stream), refs)
         metadata_map = metadata.to_map(stream.catalog_entry.metadata)
