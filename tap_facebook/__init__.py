@@ -1009,14 +1009,15 @@ def initialize_stream(
 
 def get_streams_to_sync(account, catalog, state):
     streams = []
-    for stream in STREAMS:
+    account_streams = [f"{stream}__{CONFIG.get('account_id')}" for stream in STREAMS]
+    for stream in account_streams:
         catalog_entry = next(
             (s for s in catalog.streams if s.tap_stream_id == stream), None
         )
         if catalog_entry and catalog_entry.is_selected():
             # TODO: Don't need name and stream_alias since it's on catalog_entry
-            name = catalog_entry.stream
-            stream_alias = catalog_entry.stream_alias
+            # name = catalog_entry.stream
+            # stream_alias = catalog_entry.stream_alias
             streams.append(initialize_stream(account, catalog_entry, state))
     return streams
 
@@ -1039,9 +1040,10 @@ def do_sync(account, catalog, state):
         LOGGER.info("Syncing %s, fields %s", stream.name, stream.fields())
         schema = singer.resolve_schema_references(load_schema(stream), refs)
         metadata_map = metadata.to_map(stream.catalog_entry.metadata)
-        bookmark_key = BOOKMARK_KEYS.get(stream.name)
+        account_bookmark_keys = {f"{key}__{CONFIG.get('account_id')}": value for key, value in BOOKMARK_KEYS}
+        bookmark_key = account_bookmark_keys.get(stream.name)
         singer.write_schema(
-            f'{CONFIG.get("table_prefix", "unknown_prefix")}_{stream.name}',
+            stream.name,
             schema,
             stream.key_properties,
             bookmark_key,
@@ -1049,7 +1051,7 @@ def do_sync(account, catalog, state):
         )
 
         # NB: The AdCreative stream is not an iterator
-        if stream.name in {"adcreative", "leads"}:
+        if stream.name.split('__')[0] in {"adcreative", "leads"}:
             stream.sync()
             continue
 
@@ -1063,7 +1065,7 @@ def do_sync(account, catalog, state):
                             message["record"], schema, metadata=metadata_map
                         )
                         singer.write_record(
-                            f'{CONFIG.get("table_prefix", "unknown_prefix")}_{stream.name}', record, stream.stream_alias, time_extracted
+                            stream.name, record, stream.stream_alias, time_extracted
                         )
                     elif "state" in message:
                         singer.write_state(message["state"])
@@ -1085,9 +1087,7 @@ def load_schema(stream):
 
 
 def initialize_streams_for_discovery():  # pylint: disable=invalid-name
-    return [
-        initialize_stream(None, CatalogEntry(stream=name), None) for name in STREAMS
-    ]
+    return [initialize_stream(None, CatalogEntry(stream=f"{name}__{CONFIG.get('account_id')}"), None) for name in STREAMS]
 
 
 def discover_schemas():
@@ -1100,7 +1100,8 @@ def discover_schemas():
         LOGGER.info("Loading schema for %s", stream.name)
         schema = singer.resolve_schema_references(load_schema(stream), refs)
 
-        bookmark_key = BOOKMARK_KEYS.get(stream.name)
+        account_bookmark_keys = {f"{key}__{CONFIG.get('account_id')}": value for key, value in BOOKMARK_KEYS}
+        bookmark_key = account_bookmark_keys.get(stream.name)
 
         mdata = metadata.to_map(
             metadata.get_standard_metadata(
