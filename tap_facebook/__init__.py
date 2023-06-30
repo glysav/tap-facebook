@@ -1082,7 +1082,7 @@ def get_abs_path(path):
 
 
 def load_schema(stream):
-    path = get_abs_path("schemas/{}.json".format(stream.name))
+    path = get_abs_path("schemas/{}.json".format(stream.name.split('__')[0]))
     schema = utils.load_json(path)
 
     return schema
