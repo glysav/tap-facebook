@@ -984,8 +984,8 @@ def initialize_stream(
     name = catalog_entry.stream
     stream_alias = catalog_entry.stream_alias
 
-    account_insights_breakdowns_options = {f"{k}__{CONFIG.get('account_id')}": v
-                                           for k, v in INSIGHTS_BREAKDOWNS_OPTIONS}
+    account_insights_breakdowns_options = {f"{key}__{CONFIG.get('account_id')}": INSIGHTS_BREAKDOWNS_OPTIONS[key]
+                                           for key in INSIGHTS_BREAKDOWNS_OPTIONS}
     if name in account_insights_breakdowns_options:
         return AdsInsights(
             name,
