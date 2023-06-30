@@ -993,15 +993,15 @@ def initialize_stream(
             state=state,
             options=INSIGHTS_BREAKDOWNS_OPTIONS[name],
         )
-    elif name == "campaigns":
+    elif name == f"campaigns_{CONFIG.get('account_id')}":
         return Campaigns(name, account, stream_alias, catalog_entry, state=state)
-    elif name == "adsets":
+    elif name == f"adsets_{CONFIG.get('account_id')}":
         return AdSets(name, account, stream_alias, catalog_entry, state=state)
-    elif name == "ads":
+    elif name == f"ads_{CONFIG.get('account_id')}":
         return Ads(name, account, stream_alias, catalog_entry, state=state)
-    elif name == "adcreative":
+    elif name == f"adcreative_{CONFIG.get('account_id')}":
         return AdCreative(name, account, stream_alias, catalog_entry)
-    elif name == "leads":
+    elif name == f"leads_{CONFIG.get('account_id')}":
         return Leads(name, account, stream_alias, catalog_entry, state=state)
     else:
         raise TapFacebookException("Unknown stream {}".format(name))
