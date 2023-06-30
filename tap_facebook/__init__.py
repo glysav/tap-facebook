@@ -984,24 +984,26 @@ def initialize_stream(
     name = catalog_entry.stream
     stream_alias = catalog_entry.stream_alias
 
-    if name in INSIGHTS_BREAKDOWNS_OPTIONS:
+    account_insights_breakdowns_options = {f"{k}__{CONFIG.get('account_id')}": v
+                                           for k, v in INSIGHTS_BREAKDOWNS_OPTIONS}
+    if name in account_insights_breakdowns_options:
         return AdsInsights(
             name,
             account,
             stream_alias,
             catalog_entry,
             state=state,
-            options=INSIGHTS_BREAKDOWNS_OPTIONS[name],
+            options=account_insights_breakdowns_options[name],
         )
-    elif name == f"campaigns_{CONFIG.get('account_id')}":
+    elif name == f"campaigns__{CONFIG.get('account_id')}":
         return Campaigns(name, account, stream_alias, catalog_entry, state=state)
-    elif name == f"adsets_{CONFIG.get('account_id')}":
+    elif name == f"adsets__{CONFIG.get('account_id')}":
         return AdSets(name, account, stream_alias, catalog_entry, state=state)
-    elif name == f"ads_{CONFIG.get('account_id')}":
+    elif name == f"ads__{CONFIG.get('account_id')}":
         return Ads(name, account, stream_alias, catalog_entry, state=state)
-    elif name == f"adcreative_{CONFIG.get('account_id')}":
+    elif name == f"adcreative__{CONFIG.get('account_id')}":
         return AdCreative(name, account, stream_alias, catalog_entry)
-    elif name == f"leads_{CONFIG.get('account_id')}":
+    elif name == f"leads__{CONFIG.get('account_id')}":
         return Leads(name, account, stream_alias, catalog_entry, state=state)
     else:
         raise TapFacebookException("Unknown asd stream {}".format(name))
@@ -1087,7 +1089,9 @@ def load_schema(stream):
 
 
 def initialize_streams_for_discovery():  # pylint: disable=invalid-name
-    return [initialize_stream(None, CatalogEntry(stream=f"{name}__{CONFIG.get('account_id')}"), None) for name in STREAMS]
+    return [initialize_stream(None,
+                              CatalogEntry(stream=f"{name}__{CONFIG.get('account_id')}"),
+                              None) for name in STREAMS]
 
 
 def discover_schemas():
